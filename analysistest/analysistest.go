@@ -49,8 +49,8 @@ func Run(t testing.TB, testdata string, a *gqlanalysis.Analyzer, dirs ...string)
 
 	for _, dir := range dirs {
 		c := &checker.Checker{
-			Schema: filepath.Join(testdata, dir, "schema"),
-			Query:  filepath.Join(testdata, dir, "query"),
+			Schema: filepath.Join(testdata, dir, "schema/**/*.graphql"),
+			Query:  filepath.Join(testdata, dir, "query/**/*.graphql"),
 		}
 		rs, err := c.RunSingle(a)
 		if err != nil {
