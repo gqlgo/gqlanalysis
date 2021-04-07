@@ -17,7 +17,7 @@ package lackid
 
 var Analyzer = &analysis.Analyzer{
 	Name: "lackid",
-	Doc:  "lackid finds a selection for a type which has id field but the selection does not have id"
+	Doc:  "lackid finds a selection for a type which has id field but the selection does not have id",
 	Run:  run,
 	...
 }
