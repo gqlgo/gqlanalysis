@@ -2,7 +2,6 @@ package fschecker
 
 import (
 	"flag"
-	"fmt"
 	"io/fs"
 	"os"
 
@@ -27,10 +26,7 @@ func Main(fsys fs.FS, analyzers ...*gqlanalysis.Analyzer) {
 		Schema: flagSchema,
 		Query:  flagQuery,
 	}
-	if err := checker.Run(analyzers...); err != nil {
-		fmt.Fprintln(os.Stderr, "Error:", err)
-		os.Exit(1)
-	}
+	os.Exit(checker.Run(analyzers...))
 }
 
 type Result = checker.AnalyzerResult
