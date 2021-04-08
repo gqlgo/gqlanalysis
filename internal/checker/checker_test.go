@@ -103,7 +103,7 @@ query GetA() {
 			if err != nil {
 				t.Fatal("unexpected error:", err)
 			}
-			got := results[0].Result.(bool)
+			got, _ := results[0].Result.(bool)
 			if !got {
 				t.Error("does not get expected schema from instrospection")
 			}
@@ -183,7 +183,7 @@ query GetA() {
 			if err != nil {
 				t.Fatal("unexpected error:", err)
 			}
-			got := results[0].Result.(bool)
+			got, _ := results[0].Result.(bool)
 			if !got {
 				t.Error("does not get expected schema")
 			}
