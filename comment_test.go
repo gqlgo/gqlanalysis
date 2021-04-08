@@ -27,12 +27,12 @@ func TestReadComments(t *testing.T) {
 		content string
 		want    want
 	}{
-		"empty": {"", want{S{}, I{}, I{}, false}},
-		"normal": {" # test", want{S{"# test"}, I{1}, I{2}, false}},
-		"2line": {"\n# test", want{S{"# test"}, I{2}, I{1}, false}},
-		"2comments": {"# test1\n# test2", want{S{"# test1", "# test2"}, I{1,2}, I{1, 1}, false}},
+		"empty":              {"", want{S{}, I{}, I{}, false}},
+		"normal":             {" # test", want{S{"# test"}, I{1}, I{2}, false}},
+		"2line":              {"\n# test", want{S{"# test"}, I{2}, I{1}, false}},
+		"2comments":          {"# test1\n# test2", want{S{"# test1", "# test2"}, I{1, 2}, I{1, 1}, false}},
 		"2comments-sameline": {"# test1# test2", want{S{"# test1# test2"}, I{1}, I{1}, false}},
-		"double-sharp": {"## test1", want{S{"## test1"}, I{1}, I{1}, false}},
+		"double-sharp":       {"## test1", want{S{"## test1"}, I{1}, I{1}, false}},
 	}
 
 	for name, tt := range cases {
