@@ -85,7 +85,7 @@ type Diagnostic struct {
 
 ## Implementations of Analyzer
 
-* [gqlgo/lackid](https://github.com/gqlgo/lackid) - Detect lack of id in GrahpQL query
+* [gqlgo/lackid](https://github.com/gqlgo/lackid) - Detect lack of id in GraphQL query
 
 ## Author
 
