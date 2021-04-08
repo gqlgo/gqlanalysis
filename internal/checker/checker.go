@@ -22,6 +22,12 @@ import (
 	"github.com/gqlgo/gqlanalysis"
 )
 
+const (
+	exitSuccess        = 0
+	exitWithError      = 1
+	exitWithDiagnostic = 2
+)
+
 type Checker struct {
 	Schema              string
 	Query               string
@@ -91,19 +97,22 @@ func (c *Checker) httpClient() *http.Client {
 	return http.DefaultClient
 }
 
-func (c *Checker) Run(analyzers ...*gqlanalysis.Analyzer) error {
+func (c *Checker) Run(analyzers ...*gqlanalysis.Analyzer) (exitcode int) {
 
 	var comments []*gqlanalysis.Comment
 
 	schema, scomments, err := c.parseSchema()
 	if err != nil {
-		return err
+		fmt.Fprintln(c.stderr(), "Error:", err)
+		return exitWithError
+
 	}
 	comments = append(comments, scomments...)
 
 	queries, qcomments, err := c.parseQuery(schema)
 	if err != nil {
-		return err
+		fmt.Fprintln(c.stderr(), "Error:", err)
+		return exitWithError
 	}
 	comments = append(comments, qcomments...)
 
@@ -113,20 +122,27 @@ func (c *Checker) Run(analyzers ...*gqlanalysis.Analyzer) error {
 		errs = multierr.Append(errs, act.err)
 	}
 	if errs != nil {
-		return errs
+		fmt.Fprintln(c.stderr(), "Error:", errs)
+		return exitWithError
 	}
 
+	var reported bool
 	for _, act := range acts {
 		if len(act.diagnostics) == 0 {
 			continue
 		}
+		reported = true
 		fmt.Fprintf(c.stderr(), "# results of analyzer %s", act.a.Name)
 		for _, d := range act.diagnostics {
 			fmt.Fprintf(c.stderr(), "%s:%d %s\n", d.Pos.Src.Name, d.Pos.Line, d.Message)
 		}
 	}
 
-	return nil
+	if reported {
+		return exitWithDiagnostic
+	}
+
+	return exitSuccess
 }
 
 func (c *Checker) parseSchema() (*ast.Schema, []*gqlanalysis.Comment, error) {
