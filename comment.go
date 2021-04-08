@@ -50,7 +50,7 @@ func ReadComments(src *ast.Source) ([]*Comment, error) {
 				Start:  start,
 				End:    r.cnt,
 				Line:   l,
-				Column: i+1,
+				Column: i + 1,
 				Src:    src,
 			},
 		})
