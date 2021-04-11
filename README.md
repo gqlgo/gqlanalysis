@@ -17,14 +17,14 @@ An Analyzer statically describes an analysis function: its name, documentation, 
 ```go
 package lackid
 
-var Analyzer = &analysis.Analyzer{
+var Analyzer = &gqlanalysis.Analyzer{
 	Name: "lackid",
 	Doc:  "lackid finds a selection for a type which has id field but the selection does not have id",
 	Run:  run,
 	...
 }
 
-func run(pass *analysis.Pass) (interface{}, error) {
+func run(pass *gqlanalysis.Pass) (interface{}, error) {
 	...
 }
 ```
