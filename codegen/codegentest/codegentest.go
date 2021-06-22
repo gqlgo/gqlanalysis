@@ -48,7 +48,7 @@ func Run(t testing.TB, testdata string, g *codegen.Generator, dirs ...string) []
 			Output:    g.Output,
 		}
 		results[i] = &Result{
-			Dir:    dirs[i],
+			Dir:    filepath.Join(testdata, dirs[i]),
 			Pass:   gpass,
 			Err:    rs[i].Err,
 			Output: &buf,

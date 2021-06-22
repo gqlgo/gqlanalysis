@@ -1,0 +1,16 @@
+package fragments
+
+type AFragment1 struct {
+	name string
+}
+
+type AFragment2 struct {
+	id   string
+	name string
+
+	name string
+}
+
+type BFragment struct {
+	name string
+}

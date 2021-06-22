@@ -1,0 +1,8 @@
+type A {
+	id: ID!
+	name: String!
+}
+
+type B {
+	name: String!
+}
