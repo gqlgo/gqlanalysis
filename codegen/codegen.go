@@ -22,13 +22,16 @@ type Generator struct {
 // ToAnalyzer converts the generator to an analyzer.
 func (g *Generator) ToAnalyzer() *gqlanalysis.Analyzer {
 	requires := make([]*gqlanalysis.Analyzer, len(g.Requires))
+	requiresMap := make(map[*gqlanalysis.Analyzer]*gqlanalysis.Analyzer)
 	for i := range requires {
-		a := *g.Requires[i] // copy
+		_a := g.Requires[i]
+		a := *_a // copy
 		a.Run = func(pass *gqlanalysis.Pass) (interface{}, error) {
 			pass.Report = func(*gqlanalysis.Diagnostic) {}
 			return g.Requires[i].Run(pass)
 		}
 		requires[i] = &a
+		requiresMap[&a] = _a
 	}
 
 	return &gqlanalysis.Analyzer{
@@ -40,12 +43,20 @@ func (g *Generator) ToAnalyzer() *gqlanalysis.Analyzer {
 				output = g.Output
 			}
 
+			resultOf := make(map[*gqlanalysis.Analyzer]interface{})
+			for k, v := range pass.ResultOf {
+				a, ok := requiresMap[k]
+				if ok {
+					resultOf[a] = v
+				}
+			}
+
 			gpass := &Pass{
 				Generator: g,
 				Schema:    pass.Schema,
 				Queries:   pass.Queries,
 				Comments:  pass.Comments,
-				ResultOf:  pass.ResultOf,
+				ResultOf:  resultOf,
 				Output:    output,
 			}
 

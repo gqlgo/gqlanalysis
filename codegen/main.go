@@ -14,6 +14,7 @@ import (
 // It is a wrapper of multichecker.Main.
 // See github.com/gqlgo/gqlanalysis/singlechecker.
 func Main(g *Generator) {
+
 	g.Flags.Parse(os.Args[1:])
 	os.Args = make([]string, g.Flags.NArg()+1)
 	os.Args[0] = os.Args[0]
