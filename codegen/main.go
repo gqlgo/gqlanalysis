@@ -16,8 +16,9 @@ import (
 func Main(g *Generator) {
 
 	g.Flags.Parse(os.Args[1:])
+	programName := os.Args[0]
 	os.Args = make([]string, g.Flags.NArg()+1)
-	os.Args[0] = os.Args[0]
+	os.Args[0] = programName
 	copy(os.Args[1:], g.Flags.Args())
 	flag.CommandLine.SetOutput(ioutil.Discard)
 
