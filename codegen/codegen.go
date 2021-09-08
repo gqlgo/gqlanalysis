@@ -19,6 +19,10 @@ type Generator struct {
 	Output   io.Writer
 }
 
+type escape struct{
+	err error
+}
+
 // ToAnalyzer converts the generator to an analyzer.
 func (g *Generator) ToAnalyzer() *gqlanalysis.Analyzer {
 	requires := make([]*gqlanalysis.Analyzer, len(g.Requires))
@@ -37,7 +41,21 @@ func (g *Generator) ToAnalyzer() *gqlanalysis.Analyzer {
 	return &gqlanalysis.Analyzer{
 		Name: g.Name,
 		Doc:  g.Doc,
-		Run: func(pass *gqlanalysis.Pass) (interface{}, error) {
+		Run: func(pass *gqlanalysis.Pass) (_ interface{}, rerr error) {
+			defer func() {
+				v := recover()
+				if v == nil {
+					return
+				}
+
+				switch v := v.(type) {
+				case escape:
+					rerr = v.err
+				default:
+					panic(v)
+				}
+			}()
+
 			var output io.Writer = os.Stdout
 			if g.Output != nil {
 				output = g.Output
@@ -59,6 +77,7 @@ func (g *Generator) ToAnalyzer() *gqlanalysis.Analyzer {
 				ResultOf:  resultOf,
 				Output:    output,
 			}
+			defer gpass.cleaupAll()
 
 			return nil, g.Run(gpass)
 		},
@@ -75,4 +94,44 @@ type Pass struct {
 	ResultOf map[*gqlanalysis.Analyzer]interface{}
 
 	Output io.Writer
+
+	cleanupFuncs []func()
+}
+
+func (pass *Pass) cleaupAll() {
+	for _, f := range pass.cleanupFuncs { f() }
+}
+
+func (pass *Pass) Cleanup(f func()) {
+	pass.cleanupFuncs = append(pass.cleanupFuncs, f)
+}
+
+func (pass *Pass) TempDir() string {
+	dir, err := os.MkdirTemp("", "gqlanalysis-codegen-*")
+	if err != nil {
+		panic(escape{err})
+	}
+
+	pass.Cleanup(func() {
+		if err := os.RemoveAll(dir); err != nil {
+			panic(escape{err})
+		}
+	})
+
+	return dir
+}
+
+func (pass *Pass) CreateTemp(name string) (file io.ReadWriteSeeker, path string) {
+	f, err := os.CreateTemp(pass.TempDir(), name)
+	if err != nil {
+		panic(escape{err})
+	}
+
+	pass.Cleanup(func() {
+		if err := f.Close(); err != nil {
+			panic(escape{err})
+		}
+	})
+
+	return f, f.Name()
 }

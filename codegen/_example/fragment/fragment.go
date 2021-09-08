@@ -1,13 +1,13 @@
 package fragment
 
 import (
-	"bytes"
 	"fmt"
-	"go/format"
 	"io"
+	"os/exec"
 	"text/template"
 
 	"github.com/gqlgo/gqlanalysis/codegen"
+	"github.com/vektah/gqlparser/v2/ast"
 )
 
 var (
@@ -21,63 +21,89 @@ var Generator = &codegen.Generator{
 }
 
 func init() {
-	Generator.Flags.StringVar(&flagOutput, "output", "", "output dir")
+	Generator.Flags.StringVar(&flagOutput, "output", "fragment.kt", "output file")
 }
 
-func run(pass *codegen.Pass) error {
-	var buf bytes.Buffer
+func run(pass *codegen.Pass) (rerr error) {
+	output, path := pass.CreateTemp("fragment.kt")
+
 	for _, q := range pass.Queries {
 		if len(q.Fragments) == 0 {
 			continue
 		}
-		if err := tmpl.ExecuteTemplate(&buf, "fragments", q.Fragments); err != nil {
+		tmpl := codegen.NewTemplate(pass, "fragment-template")
+		_, err := tmpl.Funcs(funcMap(pass, tmpl)).Parse(tmplStr)
+		if err != nil {
+			return err
+		}
+		if err := tmpl.ExecuteTemplate(output, "fragments", q.Fragments); err != nil {
 			return err
 		}
 	}
 
-	src, err := format.Source(buf.Bytes())
-	if err != nil {
+	if err := exec.Command("ktfmt", path).Run(); err != nil {
 		return err
 	}
 
-	fmt.Print(string(src))
-
-	if _, err := io.Copy(pass.Output, bytes.NewReader(src)); err != nil {
+	if _, err := output.Seek(0, io.SeekStart); err != nil {
 		return err
 	}
+
+	if _, err := io.Copy(pass.Output, output); err != nil {
+		return err
+	}
+
 	return nil
 }
 
-var tmpl = template.Must(codegen.NewTemplate("fragment-template").Funcs(map[string]interface{}{
-	"type": func(n string) string {
-		switch n {
-		case "String", "ID":
-			return "string"
-		default:
-			return n
-		}
-	},
-}).Parse(`
+func funcMap(pass *codegen.Pass, tmpl *template.Template) template.FuncMap {
+	return map[string]interface{}{
+		"zero": func(typ *ast.Type) string {
+			switch typ.Name() {
+			case "String", "ID":
+				return `""`
+			case "Boolean":
+				return "false"
+			}
+
+			td := pass.Schema.Types[typ.Name()]
+			if td != nil && len(td.EnumValues) != 0 {
+				return typ.Name() + "." + td.EnumValues[0].Name
+			}
+
+			panic(fmt.Sprintf("unexpected type: %#v", typ))
+		},
+	}
+}
+
+var tmplStr = `
 {{define "fragments"}}
-package fragments
-{{range .}}{{template "fragment" .}}{{end}}
+{{range .}}val {{templateWithMeta "fragment" "" .}}{{end}}
 {{end}}
 
 {{define "fragment"}}
-type {{.Name}} struct {
-	{{template "selectionSet" .SelectionSet}}
-}
+{{- lower .Name}} = {{meta}}{{.Name}}(
+	{{templateWithMeta "selectionSet" (cat .Name ".") .SelectionSet -}}
+)
 {{end}}
 
 {{define "selection" -}}
-	{{- with field . }} {{.Name}} {{type .Definition.Type.Name}} {{end -}}
+	{{- with field . }}
+		{{if .SelectionSet}}{{lower .Name}} = {{meta}}{{upper .Name}}(
+			{{- templateWithMeta "selectionSet" meta .SelectionSet -}}
+		),
+		{{else}}{{.Name}} = {{zero .Definition.Type}},{{end}}
+	{{- end -}}
 	{{- with (fragmentspread .) }}
-		{{template "selectionSet" .Definition.SelectionSet}}
+		{{with .Definition}}fragments = {{meta}}Fragments(
+		{{lower .Name}} = {{upper .Name}}(
+			{{- templateWithMeta "selectionSet" meta .SelectionSet -}}
+		)){{else}}{{end}}
 	{{end}}
 	{{- with (inlinefragment .) }}
-		{{template "selectionSet" .SelectionSet}}
+		{{templateWithMeta "selectionSet" meta .SelectionSet}}
 	{{end}}
 {{end}}
 
-{{define "selectionSet"}}{{range .}}{{template "selection" .}}{{end}}{{end}}
-`))
+{{define "selectionSet"}}{{range .}}{{templateWithMeta "selection" meta .}}{{end}}{{end}}
+`
