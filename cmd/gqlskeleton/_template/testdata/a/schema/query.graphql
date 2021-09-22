@@ -1,0 +1,4 @@
+type Query {
+	a: A!
+	b: B!
+}
