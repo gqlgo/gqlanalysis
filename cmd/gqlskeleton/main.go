@@ -7,26 +7,31 @@ import (
 	"path"
 	"path/filepath"
 
-	"github.com/gostaticanalysis/skeleton/v2/skeleton"
+	"github.com/gostaticanalysis/skeletonkit"
 	"github.com/gqlgo/gqlanalysis"
 	"golang.org/x/mod/module"
 )
 
+const (
+	ExitSuccess = 0
+	ExitError   = 1
+)
+
 func main() {
-	os.Exit(s.Run(gqlanalysis.Version(), os.Args[1:]))
+	os.Exit(run(gqlanalysis.Version(), os.Args[1:]))
 }
 
 func run(version string, args []string) int {
 	if len(args) > 0 && args[0] == "-v" {
-		fmt.Fprintln(s.Output, "gqlskeleton", version)
-		return skeleton.ExitSuccess
+		fmt.Println("gqlskeleton", version)
+		return ExitSuccess
 	}
 
 	var info Info
 	flags, err := parseFlag(args, &info)
 	if err != nil {
-		fmt.Fprintln(s.ErrOutput, "Error:", err)
-		return skeleton.ExitError
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		return ExitError
 	}
 
 	info.Path = flags.Arg(0)
@@ -36,26 +41,26 @@ func run(version string, args []string) int {
 	// allow package name only
 	if module.CheckImportPath(info.Path) != nil {
 		flags.Usage()
-		return skeleton.ExitError
+		return ExitError
 	}
 
 	if info.Pkg == "" {
 		info.Pkg = path.Base(info.Path)
 	}
 
-	if err := s.run(&info); err != nil {
-		fmt.Fprintln(s.ErrOutput, "Error:", err)
-		return skeleton.ExitError
+	if err := generate(&info); err != nil {
+		fmt.Fprintln(os.Stderr, "Error:", err)
+		return ExitError
 	}
 
-	return skeleton.ExitSuccess
+	return ExitSuccess
 }
 
 func parseFlag(args []string, info *Info) (*flag.FlagSet, error) {
 	flags := flag.NewFlagSet("gqlskeleton", flag.ContinueOnError)
-	flags.SetOutput(s.ErrOutput)
+	flags.SetOutput(os.Stdout)
 	flags.Usage = func() {
-		fmt.Fprintln(s.ErrOutput, "gqlskeleton [-kind,-cmd] example.com/path")
+		fmt.Fprintln(os.Stderr, "gqlskeleton [-kind,-cmd] example.com/path")
 		flags.PrintDefaults()
 	}
 	flags.Var(&info.Kind, "kind", "[query,codegen]")
@@ -75,23 +80,13 @@ func parseFlag(args []string, info *Info) (*flag.FlagSet, error) {
 }
 
 func generate(info *Info) error {
-	g := &skeleton.Generator{
-		Template: tmpl,
-	}
-
-	fsys, err := g.Run(info)
+	fsys, err := skeletonkit.ExecuteTemplate(tmpl, info)
 	if err != nil {
 		return err
 	}
 
-	prompt := &skeleton.Prompt{
-		Output:    os.Stdout,
-		ErrOutput: os.Stderr,
-		Input:     os.Stdin,
-	}
-
 	dst := filepath.Join(".", info.Pkg)
-	if err := skeleton.CreateDir(prompt, dst, fsys); err != nil {
+	if err := skeletonkit.CreateDir(skeletonkit.DefaultPrompt, dst, fsys); err != nil {
 		return err
 	}
 
