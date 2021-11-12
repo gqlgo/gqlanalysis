@@ -1,0 +1,20 @@
+@@ if eq .Kind "codegen" -@@
+val aFragment1 =
+    AFragment1(
+        name = "",
+    )
+val aFragment2 =
+    AFragment2(
+        id = "",
+        name = "",
+        fragments =
+            AFragment2.Fragments(
+                bFragment =
+                    BFragment(
+                        name = "",
+                    )))
+val bFragment =
+    BFragment(
+        name = "",
+    )
+@@ end -@@
