@@ -10,7 +10,7 @@ import (
 
 // TestAnalyzer is a test for Analyzer.
 func TestAnalyzer(t *testing.T) {
-	testdata := analysistest.TestData()
+	testdata := analysistest.TestData(t)
 	analysistest.Run(t, testdata, @@.Pkg@@.Analyzer, "a")
 }
 @@ end -@@
