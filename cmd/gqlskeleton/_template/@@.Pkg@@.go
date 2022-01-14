@@ -22,8 +22,8 @@ func run(pass *gqlanalysis.Pass) (interface{}, error) {
 			for _, sel := range f.SelectionSet {
 				switch sel := sel.(type) {
 				case *ast.Field:
-					if sel.Name == "gopher" {
-						pass.Reportf(sel.Position, "gopher")
+					if sel.Name == "name" {
+						pass.Reportf(sel.Position, "NG")
 					}
 				}
 			}
