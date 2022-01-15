@@ -71,7 +71,7 @@ func Run(t testing.TB, testdata string, a *gqlanalysis.Analyzer, dirs ...string)
 			}
 
 			if !regexps[0].MatchString(d.Message) {
-				t.Errorf("diagnostic %q does not mutch %s in %s:%d", d.Message, regexps[0], d.Pos.Src.Name, d.Pos.Line)
+				t.Errorf("diagnostic %q does not match %s in %s:%d", d.Message, regexps[0], d.Pos.Src.Name, d.Pos.Line)
 			}
 
 			line2cmnt[p] = regexps[1:]
