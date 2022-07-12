@@ -1,0 +1,13 @@
+fragment AFragment1 on A {
+	name
+}
+
+fragment AFragment2 on A {
+	id
+	name
+	...BFragment
+}
+
+fragment BFragment on A {
+	name
+}
