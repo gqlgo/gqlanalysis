@@ -42,7 +42,6 @@ type pos struct {
 //	         name
 //	    }
 //	}
-//
 func Run(t testing.TB, testdata string, a *gqlanalysis.Analyzer, dirs ...string) []*Result {
 	t.Helper()
 	var results []*Result

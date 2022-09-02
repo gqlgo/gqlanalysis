@@ -19,7 +19,7 @@ type Generator struct {
 	Output   io.Writer
 }
 
-type escape struct{
+type escape struct {
 	err error
 }
 
@@ -99,7 +99,9 @@ type Pass struct {
 }
 
 func (pass *Pass) cleaupAll() {
-	for _, f := range pass.cleanupFuncs { f() }
+	for _, f := range pass.cleanupFuncs {
+		f()
+	}
 }
 
 func (pass *Pass) Cleanup(f func()) {

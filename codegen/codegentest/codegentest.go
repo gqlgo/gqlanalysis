@@ -65,18 +65,18 @@ func Run(t testing.TB, testdata string, g *codegen.Generator, dirs ...string) []
 // Golden reports error via *testing.T.
 // If update is true, golden files would be updated.
 //
-// 	var flagUpdate bool
+//	var flagUpdate bool
 //
-// 	func TestMain(m *testing.M) {
-// 		flag.BoolVar(&flagUpdate, "update", false, "update the golden files")
-// 		flag.Parse()
-// 		os.Exit(m.Run())
-// 	}
+//	func TestMain(m *testing.M) {
+//		flag.BoolVar(&flagUpdate, "update", false, "update the golden files")
+//		flag.Parse()
+//		os.Exit(m.Run())
+//	}
 //
-// 	func TestGenerator(t *testing.T) {
-// 		rs := codegentest.Run(t, codegentest.TestData(), example.Generator, "example")
-// 		codegentest.Golden(t, rs, flagUpdate)
-// 	}
+//	func TestGenerator(t *testing.T) {
+//		rs := codegentest.Run(t, codegentest.TestData(), example.Generator, "example")
+//		codegentest.Golden(t, rs, flagUpdate)
+//	}
 func Golden(t testing.TB, results []*Result, update bool) {
 	t.Helper()
 	for _, r := range results {
