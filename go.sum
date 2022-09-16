@@ -1,5 +1,5 @@
-github.com/Yamashou/gqlgenc v0.11.0 h1:y6I7CDrUdY4JBxfwss9168HTP5k/CdExLV5+YPG/3nY=
-github.com/Yamashou/gqlgenc v0.11.0/go.mod h1:OeQhghEgvGWvRwzx9XjMeg3FUQOHnTo5/12iuJSJxLg=
+github.com/Yamashou/gqlgenc v0.11.1 h1:eJbDHLYfZuGtzsBQd2NYuLF+CZ2nCq8EK/O8lgB5teQ=
+github.com/Yamashou/gqlgenc v0.11.1/go.mod h1:xxbfApjwVVo01OaAcyeMITA7G4rqqI58CUW0a4X4S/g=
 github.com/agnivade/levenshtein v1.0.1/go.mod h1:CURSv5d9Uaml+FovSIICkLbAUZ9S4RqaHDIsdSBg7lM=
 github.com/agnivade/levenshtein v1.1.1 h1:QY8M92nrzkmr798gCo3kmMyqXFzdQVpxLlGPRBij0P8=
 github.com/agnivade/levenshtein v1.1.1/go.mod h1:veldBMzWxcCG2ZvUTKD2kJNRdCk5hVbJomOvKkmgYbo=

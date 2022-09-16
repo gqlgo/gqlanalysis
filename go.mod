@@ -3,7 +3,7 @@ module github.com/gqlgo/gqlanalysis
 go 1.19
 
 require (
-	github.com/Yamashou/gqlgenc v0.11.0
+	github.com/Yamashou/gqlgenc v0.11.1
 	github.com/google/go-cmp v0.5.9
 	github.com/gostaticanalysis/skeletonkit v0.4.0
 	github.com/josharian/txtarfs v0.0.0-20210615234325-77aca6df5bca
