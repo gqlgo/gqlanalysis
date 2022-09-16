@@ -39,12 +39,7 @@ jobs:
         restore-keys: |
           go-
 
-    - name: Install tennvet
-      run: |
-        GOBIN=$(pwd) go install github.com/tenntenn/tennvet@latest
-
     - name: Test and vet
       run: |
         go vet ./...
-        go vet -vettool=$(pwd)/tennvet ./...
         go test -v -race ./...
