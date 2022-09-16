@@ -132,7 +132,7 @@ func (c *Checker) Run(analyzers ...*gqlanalysis.Analyzer) (exitcode int) {
 			continue
 		}
 		reported = true
-		fmt.Fprintf(c.stderr(), "# results of analyzer %s", act.a.Name)
+		fmt.Fprintf(c.stderr(), "# results of analyzer %s\n", act.a.Name)
 		for _, d := range act.diagnostics {
 			fmt.Fprintf(c.stderr(), "%s:%d %s\n", d.Pos.Src.Name, d.Pos.Line, d.Message)
 		}
