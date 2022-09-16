@@ -12,14 +12,12 @@ import (
 
 	"github.com/Yamashou/gqlgenc/client"
 	"github.com/Yamashou/gqlgenc/introspection"
+	"github.com/gqlgo/gqlanalysis"
 	"github.com/mattn/go-zglob"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 	"github.com/vektah/gqlparser/v2/parser"
 	"github.com/vektah/gqlparser/v2/validator"
-	"go.uber.org/multierr"
-
-	"github.com/gqlgo/gqlanalysis"
 )
 
 const (
@@ -116,13 +114,21 @@ func (c *Checker) Run(analyzers ...*gqlanalysis.Analyzer) (exitcode int) {
 	}
 	comments = append(comments, qcomments...)
 
-	var errs error
 	acts := c.analyze(schema, queries, comments, analyzers)
+
+	var errs []error
 	for _, act := range acts {
-		errs = multierr.Append(errs, act.err)
+		if act.err != nil {
+			errs = append(errs, act.err)
+		}
 	}
-	if errs != nil {
-		fmt.Fprintln(c.stderr(), "Error:", errs)
+
+	if len(errs) != 0 {
+		var errMsg string
+		for _, err := range errs {
+			errMsg += err.Error() + "\n"
+		}
+		fmt.Fprintf(c.stderr(), "Error: %v", errMsg)
 		return exitWithError
 	}
 
