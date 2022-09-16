@@ -1,6 +1,6 @@
 module github.com/gqlgo/gqlanalysis
 
-go 1.17
+go 1.19
 
 require (
 	github.com/Yamashou/gqlgenc v0.11.0
