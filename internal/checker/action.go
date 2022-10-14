@@ -37,12 +37,20 @@ func (act *action) exec() {
 func (act *action) execOnce() {
 	execAll(act.deps)
 
+	inputs := make(map[*gqlanalysis.Analyzer]interface{})
+	for _, a := range act.deps {
+		if a.result != nil {
+			inputs[a.a] = a.result
+		}
+	}
+
 	pass := &gqlanalysis.Pass{
 		Analyzer: act.a,
 		Schema:   act.schema,
 		Queries:  act.queries,
 		Comments: act.comments,
 		Report:   act.report,
+		ResultOf: inputs,
 	}
 	act.pass = pass
 
