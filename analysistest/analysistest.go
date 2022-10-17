@@ -95,7 +95,7 @@ func wantComments(t testing.TB, comments []*gqlanalysis.Comment) map[pos][]*rege
 	t.Helper()
 	line2cmnt := make(map[pos][]*regexp.Regexp)
 	for _, cmnt := range comments {
-		line := strings.TrimSpace(strings.TrimPrefix(cmnt.Value, "#"))
+		line := strings.TrimLeft(cmnt.Value, "# ")
 		if !strings.HasPrefix(line, "want ") {
 			continue
 		}

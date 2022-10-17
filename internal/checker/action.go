@@ -3,6 +3,8 @@ package checker
 import (
 	"fmt"
 	"reflect"
+	"sort"
+	"strings"
 	"sync"
 
 	"github.com/vektah/gqlparser/v2/ast"
@@ -26,6 +28,10 @@ type action struct {
 	diagnostics []*gqlanalysis.Diagnostic
 }
 
+func (act *action) String() string {
+	return act.a.Name
+}
+
 func (act *action) report(d *gqlanalysis.Diagnostic) {
 	act.diagnostics = append(act.diagnostics, d)
 }
@@ -37,12 +43,32 @@ func (act *action) exec() {
 func (act *action) execOnce() {
 	execAll(act.deps)
 
+	var failed []string
+	for _, dep := range act.deps {
+		if dep.err != nil {
+			failed = append(failed, dep.String())
+		}
+	}
+	if failed != nil {
+		sort.Strings(failed)
+		act.err = fmt.Errorf("failed prerequisites: %s", strings.Join(failed, ", "))
+		return
+	}
+
+	inputs := make(map[*gqlanalysis.Analyzer]interface{})
+	for _, a := range act.deps {
+		if a.result != nil {
+			inputs[a.a] = a.result
+		}
+	}
+
 	pass := &gqlanalysis.Pass{
 		Analyzer: act.a,
 		Schema:   act.schema,
 		Queries:  act.queries,
 		Comments: act.comments,
 		Report:   act.report,
+		ResultOf: inputs,
 	}
 	act.pass = pass
 

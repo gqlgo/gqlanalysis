@@ -174,6 +174,7 @@ query GetA() {
 									return true, nil
 								}
 							}
+
 						}
 					}
 					return false, nil
@@ -189,4 +190,124 @@ query GetA() {
 			}
 		})
 	}
+}
+
+func TestChecker_Run_ResultOf(t *testing.T) {
+	t.Parallel()
+	fsys := fsys(`
+-- schema/models/a.gql --
+type A {
+    id: ID!
+    name: String!
+}
+-- schema/schema.gql --
+schema {
+    query: Query
+}
+-- schema/query.gql --
+type Query {
+    a: A!
+}
+-- query/q.gql --
+query GetA() {
+    a { # check
+        id
+	name
+    }
+}`)
+	cases := map[string]struct {
+		fsys   fs.FS
+		schema string
+		query  string
+		deps   string
+		want   string
+	}{
+		"single":    {fsys, "schema/**/*.gql", "query/*.gql", "A", "A"},
+		"multiple":  {fsys, "schema/**/*.gql", "query/*.gql", "A->B", "AB"},
+		"hierarchy": {fsys, "schema/**/*.gql", "query/*.gql", "A->B B->C", "ABC"},
+	}
+
+	for name, tt := range cases {
+		name, tt := name, tt
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			checker := &checker.Checker{
+				Fsys:   tt.fsys,
+				Schema: tt.schema,
+				Query:  tt.query,
+			}
+
+			as := analyzer(t, strings.Split(tt.deps, " ")...)
+			results, err := checker.RunSingle(as["A"])
+			if err != nil {
+				t.Fatal("unexpected error:", err)
+			}
+
+			got := results[0].Result
+			if got != tt.want {
+				t.Errorf("want %s but got %s", tt.want, got)
+			}
+		})
+	}
+}
+
+func analyzer(t *testing.T, deps ...string) map[string]*gqlanalysis.Analyzer {
+	names := make(map[string][]string)
+
+	// A->B,C
+	for _, dep := range deps {
+		a, requires, _ := strings.Cut(dep, "->")
+		names[a] = strings.Split(requires, ",")
+		for _, req := range names[a] {
+			if _, exist := names[req]; !exist {
+				names[req] = nil
+			}
+		}
+	}
+
+	all := make(map[string]*gqlanalysis.Analyzer)
+	for name, reqs := range names {
+		name := name
+
+		a := all[name]
+		if a == nil {
+			a = &gqlanalysis.Analyzer{
+				Name:       name,
+				Doc:        name,
+				ResultType: reflect.TypeOf(""),
+				Run: func(pass *gqlanalysis.Pass) (interface{}, error) {
+					result := name
+					for _, v := range pass.ResultOf {
+						result += v.(string)
+					}
+					return result, nil
+				},
+			}
+			all[name] = a
+		}
+
+		for _, req := range reqs {
+			req := req
+			reqAnalyzer := all[req]
+			if reqAnalyzer == nil {
+				reqAnalyzer = &gqlanalysis.Analyzer{
+					Name:       req,
+					Doc:        req,
+					ResultType: reflect.TypeOf(""),
+					Run: func(pass *gqlanalysis.Pass) (interface{}, error) {
+						result := req
+						for _, v := range pass.ResultOf {
+							result += v.(string)
+						}
+						return result, nil
+					},
+				}
+				all[req] = reqAnalyzer
+			}
+
+			a.Requires = append(a.Requires, reqAnalyzer)
+		}
+	}
+
+	return all
 }
