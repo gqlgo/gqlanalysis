@@ -15,7 +15,7 @@ func (ih introspectionHeader) String() string {
 		if len(s) != 0 {
 			s += ","
 		}
-		s += fmt.Sprintf("%v=%v", k, v)
+		s += fmt.Sprintf("%v:%v", k, v)
 	}
 	return s
 }
@@ -23,7 +23,7 @@ func (ih introspectionHeader) String() string {
 func (ih introspectionHeader) Set(args string) error {
 	keyAndValueList := strings.Split(args, ",")
 	for _, keyAndValueString := range keyAndValueList {
-		keyAndValue := strings.Split(keyAndValueString, "=")
+		keyAndValue := strings.Split(keyAndValueString, ":")
 		key := keyAndValue[0]
 		value := keyAndValue[1]
 		// Supports only one value.
