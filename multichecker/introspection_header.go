@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// introspectionHeader is conformance to `Value` in flag package.
+// introspectionHeader confirmed to `Value` interface in `flag` package.
 type introspectionHeader http.Header
 
 func (ih introspectionHeader) String() string {
