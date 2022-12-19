@@ -15,14 +15,13 @@ func (ih introspectionHeader) String() string {
 		if len(s) != 0 {
 			s += ","
 		}
-		s += fmt.Sprintf("%v:%v", k, v)
+		s += fmt.Sprintf("%v:%v", k, v[0])
 	}
 	return s
 }
 
 func (ih introspectionHeader) Set(args string) error {
-	keyAndValueList := strings.Split(args, ",")
-	for _, keyAndValueString := range keyAndValueList {
+	for _, keyAndValueString := range strings.Split(args, ",") {
 		keyAndValue := strings.Split(keyAndValueString, ":")
 		key := keyAndValue[0]
 		value := keyAndValue[1]
