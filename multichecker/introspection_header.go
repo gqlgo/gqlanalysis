@@ -26,8 +26,9 @@ func (ih introspectionHeader) Set(args string) error {
 		keyAndValue := strings.Split(keyAndValueString, ":")
 		key := keyAndValue[0]
 		value := keyAndValue[1]
+
 		// Supports only one value.
-		ih[key][0] = value
+		ih[key] = []string{value}
 	}
 	return nil
 
