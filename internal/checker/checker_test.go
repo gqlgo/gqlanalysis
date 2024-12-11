@@ -50,7 +50,7 @@ func TestChecker_Run_Introspection(t *testing.T) {
 		"introspection": {
 			fsys: fsys(`
 -- query/q.graphql --
-query GetA() {
+query GetA {
     a { # check
         id
 	name
@@ -134,7 +134,7 @@ type Query {
     a: A!
 }
 -- query/q.gql --
-query GetA() {
+query GetA {
     a { # check
         id
 	name
@@ -209,7 +209,7 @@ type Query {
     a: A!
 }
 -- query/q.gql --
-query GetA() {
+query GetA {
     a { # check
         id
 	name
