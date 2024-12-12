@@ -64,8 +64,8 @@ func TestExitCode(t *testing.T) {
 	}
 
 	for _, tt := range cases {
-		schema := filepath.Join("testdata", "schema", "**", "**.graphql")
-		query := filepath.Join("testdata", "query", "**", "**.graphql")
+		schema := filepath.Join("testdata", "a", "schema", "**", "**.graphql")
+		query := filepath.Join("testdata", "a", "query", "**", "**.graphql")
 		args := []string{"-test.run=TestExitCode", "--", "-schema", schema, "-query", query}
 		args = append(args, strings.Split(tt.args, " ")...)
 		cmd := exec.Command(os.Args[0], args...)

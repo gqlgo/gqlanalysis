@@ -37,7 +37,7 @@ type pos struct {
 // The comment begin "want" and a Go's regular expression folows it.
 // For example, if the analyzer must report "NG" as a diagnostic, it can test with such as following.
 //
-//	query Q() {
+//	query Q {
 //	    a { # want "NG"
 //	         name
 //	    }

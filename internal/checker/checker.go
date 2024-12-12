@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/Yamashou/gqlgenc/client"
+	client "github.com/Yamashou/gqlgenc/clientv2"
 	"github.com/Yamashou/gqlgenc/introspection"
 	"github.com/gqlgo/gqlanalysis"
 	"github.com/mattn/go-zglob"
@@ -208,12 +208,13 @@ func (c *Checker) parseSchemaFromFiles() (*ast.Schema, []*gqlanalysis.Comment, e
 }
 
 func (c *Checker) parseSchemaFromIntrospection() (*ast.Schema, []*gqlanalysis.Comment, error) {
-	gqlclient := client.NewClient(c.httpClient(), c.Schema, func(req *http.Request) {
+	gqlclient := client.NewClient(c.httpClient(), c.Schema, nil, func(ctx context.Context, req *http.Request, gqlInfo *client.GQLRequestInfo, res any, next client.RequestInterceptorFunc) error {
 		for key := range c.IntrospectionHeader {
 			for _, value := range c.IntrospectionHeader[key] {
 				req.Header.Add(key, value)
 			}
 		}
+		return next(ctx, req, gqlInfo, res)
 	})
 	var res introspection.Query
 	if err := gqlclient.Post(context.Background(), "Query", introspection.Introspection, &res, nil); err != nil {

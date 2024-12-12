@@ -1,4 +1,4 @@
-query GetA() {
+query GetA {
     a { # want "NG"
         id
 	name
