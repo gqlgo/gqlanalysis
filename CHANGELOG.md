@@ -1,5 +1,10 @@
 # Changelog
 
+## [v0.3.6](https://github.com/gqlgo/gqlanalysis/compare/v0.3.5...v0.3.6) - 2024-12-12
+- Add CLI argument for introspection-header by @bannzai in https://github.com/gqlgo/gqlanalysis/pull/20
+- Update dependencies by @sonatard in https://github.com/gqlgo/gqlanalysis/pull/22
+- Fix test by @sonatard in https://github.com/gqlgo/gqlanalysis/pull/23
+
 ## [v0.3.5](https://github.com/gqlgo/gqlanalysis/compare/v0.3.4...v0.3.5) - 2022-10-17
 - Add a tagpr workflow of GitHub Actions by @tenntenn in https://github.com/gqlgo/gqlanalysis/pull/17
 - Fix dependencies handling by @tenntenn in https://github.com/gqlgo/gqlanalysis/pull/16
