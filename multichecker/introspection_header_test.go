@@ -1,6 +1,8 @@
 package multichecker_test
 
 import (
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"testing"
 
 	"github.com/gqlgo/gqlanalysis/multichecker"
@@ -45,10 +47,9 @@ func TestIntrospectionHeader_Value(t *testing.T) {
 	for _, tt := range cases {
 		ih := make(multichecker.ExportedIntrospectionHeader)
 		ih.Set(tt.want)
-		actual := ih.String(
-)
-		if actual != tt.want {
-			t.Errorf("actual != tt.want. actual: %v, want: %v", actual, tt.want)
+		got := ih.String()
+		if !cmp.Equal(got, tt.want, cmpopts.SortMaps(func(a, b string) bool { return a < b })) {
+			t.Errorf("actual != tt.want. actual: %v, want: %v", got, tt.want)
 		}
 	}
 }
